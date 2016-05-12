@@ -1,9 +1,7 @@
 import React, {Component} from 'react';
-import {render} from 'react-dom';
-require("../public/css/style.scss");
 
 
-class App extends Component {
+export default class Layout extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -14,11 +12,9 @@ class App extends Component {
   render() {
     return (
       <div>
-        <Layout/>
+        
       </div>
     );
   }
 }
 
-render(
-  <App/>, document.getElementById('app'));
