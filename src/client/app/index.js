@@ -20,7 +20,7 @@ class App extends Component {
   render() {
     return (
       <div>
-        <h1> INSERT APP HERE!</h1>
+        <h1> INSERT App HERE!</h1>
       </div>
     );
   }
