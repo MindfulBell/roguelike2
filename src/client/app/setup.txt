@@ -1,0 +1,26 @@
+<Layout>
+<Level>
+    <Cells>
+        <Wall>
+        <Hero>
+        <Enemies>
+        <Potions>
+        <Weapon>
+        <Boss>
+
+Global App State:
+
+{
+    Level: {
+        Level: 1,2,3,4
+        Enemies Left: 10,9,8,7
+        Potions Left: etc.
+    }
+    Hero: {
+        Level: 1,2,3,4 etc.
+        Weapon: [name, num]
+        Hitpoints: 10,12,15,18 etc.
+        Position: Which cell is the hero present in? 0-160?
+    }
+    
+}

@@ -1,24 +1,13 @@
-import React, {Component} from 'react';
-import {render} from 'react-dom';
+import React from 'react';
+import { render } from 'react-dom';
 require("../public/css/style.scss");
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import reducers from './reducers';
+import App from './components/app';
 
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-     
-    };
-  }
-
-  render() {
-    return (
-      <div>
-        <Layout/>
-      </div>
-    );
-  }
-}
-
-render(
-  <App/>, document.getElementById('app'));
+render(<Provider store={createStore(reducers)}>
+        <App />
+      </Provider>
+  , document.getElementById('app'));
