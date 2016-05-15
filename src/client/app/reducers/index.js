@@ -7,4 +7,4 @@ const rootReducer = combineReducers({
 	layout: LayoutReducer
 })
 
-export default rootReducer
+export default rootReducer;

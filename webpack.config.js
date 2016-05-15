@@ -26,7 +26,7 @@ var config = {
   devServer: {
       contentBase: path.join('./src/client'),
       historyApiFallback: true,
-      // hot: false,
+      hot: false,
       inline: true,
       stats: {
         chunks: false,

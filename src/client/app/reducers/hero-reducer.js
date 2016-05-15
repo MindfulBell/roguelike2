@@ -1,3 +1,5 @@
+import { MOVE_HERO } from '../actions/index.js';
+
 const INITIAL_HERO_STATE = {
     level: 1,
     hp: 50,
@@ -7,7 +9,11 @@ const INITIAL_HERO_STATE = {
 
 export default function (state = INITIAL_HERO_STATE, action) {
     switch (action.type) {
-        
+        case MOVE_HERO:
+        	return Object.assign({}, state, {position: action.position})
+        	break;
+        default:
+        	return state;
     }
-    return state;
+   
 }

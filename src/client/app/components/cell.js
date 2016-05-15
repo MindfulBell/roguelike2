@@ -14,6 +14,9 @@ export default class Cell extends Component {
         if (this.props.hero) {
             style = {backgroundColor: 'blue'}
         }
+        else if (this.props.potion) {
+            style= {backgroundColor: 'green'}
+        }
         return (
             <div className='cell' style={style}>
             </div>
