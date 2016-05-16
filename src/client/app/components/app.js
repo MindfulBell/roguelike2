@@ -13,7 +13,7 @@ export default class App extends Component {
     return (
       <div>
       <h1 style={{textAlign: 'center', color: 'white'}}> RogueLike Dungeon Crawler </h1>
-        <Layout />
+        <Layout/>
       </div>
     );
   }
