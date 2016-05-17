@@ -3,15 +3,15 @@ body {
 }
 
 .board {
-    height: 800px;
-    width: 800px;
+    height: 600px;
+    width: 600px;
     background-color: white;
     margin: 0 auto;
 }
 
 .cell {
-    height: 20px;
-    width: 20px;
+    height: 15px;
+    width: 15px;
     background-color: gray;
     display: inline-block;
 }

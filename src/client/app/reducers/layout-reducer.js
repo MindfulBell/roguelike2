@@ -1,16 +1,14 @@
-function randomInclusive(min, max) {
+export function randomInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function buildBoard(h, w) {
-      const boardsize = w * 20; // 20 is px size of each cell (see style)
-      const totalCells = h*w;
       const cells = [];
       let counter = -1;
-      let potionCount = 4;
-      let weaponAdded = false;
-      let enemyCount = 6;
-      let stairCaseAdded = false;
+      // let potionCount = 4;
+      // let weaponAdded = false;
+      // let enemyCount = 6;
+      // let stairCaseAdded = false;
       for (let i=0; i<h; i++) {
           let row = [];
         for (let j=0; j<w; j++) {
@@ -37,6 +35,7 @@ function buildBoard(h, w) {
 //  [0,5],[1,5],[2,5],[3,5]]
 function addRooms(board, width, height){
   
+  // building a room, corner it starts in, corner it ends in
   let xStart = randomInclusive(0,20);
   let yStart = randomInclusive(0,20);
   let xEnd = xStart + width;
@@ -47,20 +46,15 @@ function addRooms(board, width, height){
       let cellX = cell.position[0];
       let cellY = cell.position[1];
       if ((cellX >= xStart && cellX <= xEnd) && (cellY >= yStart && cellY <= yEnd)) {
-        // return modified object, how to modify?
+        // if it is within the established room dimensions, make it a room cell
         let room = true;
-        return Object.assign({}, cell, {room})
+        return Object.assign({}, cell, {room});
       }
       else {
         return cell;
       }
-    })
-  })
-
-  //x size var
-  //y size var
-  //just make a range for the x, and a range for the y
-  //go through entire board, for each: if (x coord > n and < m and y coord > a and < b)...
+    });
+  });
 }
 
 
@@ -87,9 +81,9 @@ function addPotion(board, num){
 }
 
 
-const INITIAL_LEVEL_STATE = buildBoard(40,40);
+export const INITIAL_BOARD_STATE = buildBoard(40,40);
 
-export default function(state = INITIAL_LEVEL_STATE, action) {
+export default function(state = INITIAL_BOARD_STATE, action) {
     switch(action.type) {
         
     }

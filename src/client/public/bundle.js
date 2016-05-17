@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "ce9328cd46558e706311"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "4480bf7bce7b313c640c"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -5222,7 +5222,7 @@
 	
 	
 	// module
-	exports.push([module.id, "body {\n  background-color: black; }\n\n.board {\n  height: 800px;\n  width: 800px;\n  background-color: white;\n  margin: 0 auto; }\n\n.cell {\n  height: 20px;\n  width: 20px;\n  background-color: gray;\n  display: inline-block; }\n", ""]);
+	exports.push([module.id, "body {\n  background-color: black; }\n\n.board {\n  height: 600px;\n  width: 600px;\n  background-color: white;\n  margin: 0 auto; }\n\n.cell {\n  height: 15px;\n  width: 15px;\n  background-color: gray;\n  display: inline-block; }\n", ""]);
 	
 	// exports
 
@@ -12355,35 +12355,9 @@
 /*!*************************************************!*\
   !*** ./src/client/app/reducers/hero-reducer.js ***!
   \*************************************************/
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	exports.default = function () {
-	    var state = arguments.length <= 0 || arguments[0] === undefined ? INITIAL_HERO_STATE : arguments[0];
-	    var action = arguments[1];
-	
-	    switch (action.type) {
-	        case _index.MOVE_HERO:
-	            return Object.assign({}, state, { position: action.position });
-	            break;
-	        default:
-	            return state;
-	    }
-	};
-	
-	var _index = __webpack_require__(/*! ../actions/index.js */ 55);
-	
-	var INITIAL_HERO_STATE = {
-	    level: 1,
-	    hp: 50,
-	    weapon: ['fist', 5],
-	    position: [30, 20]
-	};
+	"use strict";
 
 /***/ },
 /* 101 */
@@ -12429,9 +12403,10 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.randomInclusive = randomInclusive;
 	
 	exports.default = function () {
-	  var state = arguments.length <= 0 || arguments[0] === undefined ? INITIAL_LEVEL_STATE : arguments[0];
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? INITIAL_BOARD_STATE : arguments[0];
 	  var action = arguments[1];
 	
 	  switch (action.type) {}
@@ -12443,14 +12418,12 @@
 	}
 	
 	function buildBoard(h, w) {
-	  var boardsize = w * 20; // 20 is px size of each cell (see style)
-	  var totalCells = h * w;
 	  var cells = [];
 	  var counter = -1;
-	  var potionCount = 4;
-	  var weaponAdded = false;
-	  var enemyCount = 6;
-	  var stairCaseAdded = false;
+	  // let potionCount = 4;
+	  // let weaponAdded = false;
+	  // let enemyCount = 6;
+	  // let stairCaseAdded = false;
 	  for (var i = 0; i < h; i++) {
 	    var row = [];
 	    for (var j = 0; j < w; j++) {
@@ -12477,6 +12450,7 @@
 	//  [0,5],[1,5],[2,5],[3,5]]
 	function addRooms(board, width, height) {
 	
+	  // building a room, corner it starts in, corner it ends in
 	  var xStart = randomInclusive(0, 20);
 	  var yStart = randomInclusive(0, 20);
 	  var xEnd = xStart + width;
@@ -12487,7 +12461,7 @@
 	      var cellX = cell.position[0];
 	      var cellY = cell.position[1];
 	      if (cellX >= xStart && cellX <= xEnd && cellY >= yStart && cellY <= yEnd) {
-	        // return modified object, how to modify?
+	        // if it is within the established room dimensions, make it a room cell
 	        var room = true;
 	        return Object.assign({}, cell, { room: room });
 	      } else {
@@ -12495,11 +12469,6 @@
 	      }
 	    });
 	  });
-	
-	  //x size var
-	  //y size var
-	  //just make a range for the x, and a range for the y
-	  //go through entire board, for each: if (x coord > n and < m and y coord > a and < b)...
 	}
 	
 	// Will need additional checks for walls and other entities obviously...just more of a test to see how i can get stuff on the board
@@ -12530,7 +12499,7 @@
 	
 	/*[[{position: [x,y], enemy: false, potion: false, weapon: false},{},{}]
 	   [{},{},{}]]*/
-	var INITIAL_LEVEL_STATE = buildBoard(40, 40);
+	var INITIAL_BOARD_STATE = exports.INITIAL_BOARD_STATE = buildBoard(40, 40);
 
 /***/ },
 /* 103 */
