@@ -20,7 +20,8 @@ class Layout extends Component {
     componentWillUnmount(){
         window.removeEventListener('keyup', this.handleKey)
     }
-    
+  // key press, this function will grow as it needs to check the neighbors before it moves
+  // biggest check will come from an enemy next to it
     handleKey(e){
       let heroPos = this.props.hero.position
       let neighbors = 
@@ -30,8 +31,11 @@ class Layout extends Component {
         right: [heroPos[0], heroPos[1]+1],
         bottom: [heroPos[0]+1, heroPos[1]]
       };
-      let move = neighbors.left;
+      let move = [heroPos[0], heroPos[1]];
       switch (e.keyCode) {
+        case 37:
+          move = neighbors.left;
+          break;
         case 38:
           move = neighbors.top;
           break;
@@ -42,10 +46,12 @@ class Layout extends Component {
           move = neighbors.bottom;
           break;
       }
+      // pulled from actions, redux usage here
       this.props.moveHero(move)
     }
 
   render() {
+    // building the map, pulled layout from global state/redux
     let cells = this.props.layout.map((row, rowNum)=>{
       return row.map((cell,cellNum)=>{
         let heroPos = this.props.hero.position;
@@ -72,6 +78,25 @@ class Layout extends Component {
             neighbors={neighbors}/>
           )
         }
+        // if weapon
+        else if (cell.weapon !== false) {
+          return (
+            <Cell key={cellNum+rowNum}
+            position={[rowNum, cellNum]}
+            weapon={true}
+            neighbors={neighbors}/>
+            )
+        }
+        // if enemy
+        else if (cell.enemy !== false) {
+          return (
+            <Cell key={cellNum+rowNum}
+            position={[rowNum, cellNum]}
+            enemy={true}
+            neighbors={neighbors}/>
+            )
+        }
+        // room has to be the last one. ALL OF THESE NEED TO BE REFACTORED!!
         else if (cell.room) {
           return (
             <Cell key={cellNum+rowNum}
@@ -80,14 +105,7 @@ class Layout extends Component {
             neighbors={neighbors}/>
             )
         }
-        else if (cell.doorway) {
-          return (
-            <Cell key={cellNum+rowNum}
-            position={[rowNum, cellNum]}
-            doorway={true}
-            neighbors={neighbors}/>
-            )
-        }
+        
         else {
           return <Cell key={cellNum+rowNum} position={[rowNum, cellNum]} neighbors={neighbors}/>
         }

@@ -5,7 +5,7 @@ function randomInclusive(min, max) {
 }
 
 //may have to add a ton of parameters to this as it will need to run again on level changes
-function buildBoard(h, w) {
+function buildBoard(w, h) {
       let cells = [];
       let counter = 0;
       for (let i=0; i<h; i++) {
@@ -28,22 +28,22 @@ function buildBoard(h, w) {
         }
         cells.push(row);
       }
-      cells = addPotion(cells, 4)
-      cells = addWeapon(cells, {name: 'club', att: 5});
+      cells = addPotion(cells);
+      cells = addWeapon(cells);
+      cells = addEnemies(cells);
       return cells;
     }
 
-// Will need additional checks for walls and other entities obviously...just more of a test to see how i can get stuff on the board
-function addPotion(board, num){
+function addPotion(board, num = 4){
   let tempBoard = board;
   let count = num;
   while (count > 0) {
-    let x = randomInclusive(0,39);
-    let y = randomInclusive(0,39);
-    let potion = Math.floor(Math.random()*(15-8 + 1)) + 1;
+    let x = randomInclusive(0,49);
+    let y = randomInclusive(0,29);
+    let potion = randomInclusive(8,15);
     let newBoard = tempBoard.map((row) => {
       return row.map((cell)=>{
-        if (cell.position[0] === x && cell.position[1] === y && cell.room === true) {
+        if (cell.position[0] === x && cell.position[1] === y && cell.room) {
           count--;
           return Object.assign({}, cell, {potion});
         }
@@ -56,16 +56,18 @@ function addPotion(board, num){
   }
   return tempBoard;
 }
-function addWeapon(board, weapon){
-  let placed = false;
+
+
+function addWeapon(board, weapon = {name: 'club', att: 5}){
   let newBoard= [];
-  while (!placed) {
-    let x = randomInclusive(0,39);
-    let y = randomInclusive(0,39);
-    newBoard = board.map((row)=>{
+  let foundSpot = false;
+  while (!foundSpot) {
+  let x = randomInclusive(0,49);
+  let y = randomInclusive(0,29);
+  newBoard = board.map((row)=>{
       return row.map((cell)=>{
-        if ((cell.position[0] === x && cell.position === y) && cell.room === true && !cell.potion) {
-          placed = true;
+        if (cell.position[0] === x && cell.position[1] === y && cell.room && !cell.potion) {
+          foundSpot = true;
           return Object.assign({}, cell, {weapon})
         }
         else {
@@ -78,7 +80,31 @@ function addWeapon(board, weapon){
 }
 
 
-export const INITIAL_BOARD_STATE = buildBoard(30,50);
+function addEnemies(board, num = 6){
+  let tempBoard = board;
+  let count = num;
+  while (count > 0) {
+    let x = randomInclusive(0,49);
+    let y = randomInclusive(0,29);
+    let enemy = {lvl: randomInclusive(3,5), hp: randomInclusive(12,20)};
+    let newBoard = tempBoard.map((row) => {
+      return row.map((cell)=>{
+        if (cell.position[0] === x && cell.position[1] === y && cell.room && !cell.potion && !cell.weapon) {
+          count--;
+          return Object.assign({}, cell, {enemy});
+        }
+        else {
+          return cell;
+        }
+      });
+    });
+    tempBoard = newBoard;
+  }
+  return tempBoard;
+}
+
+
+export const INITIAL_BOARD_STATE = buildBoard(50,30);
 
 export default function(state = INITIAL_BOARD_STATE, action) {
     switch(action.type) {

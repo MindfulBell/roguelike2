@@ -17,9 +17,16 @@ export default class Cell extends Component {
         else if (this.props.potion) {
             style={backgroundColor: 'green'}
         }
-        else if (this.props.room || this.props.doorway) {
+        else if (this.props.weapon) {
+            style={backgroundColor: 'orange'}
+        }
+        else if (this.props.enemy) {
+            style={backgroundColor: 'red'}
+        }
+        else if (this.props.room) {
             style={backgroundColor: 'white'}
         }
+        
         return (
             <div className='cell' style={style}>
                 
