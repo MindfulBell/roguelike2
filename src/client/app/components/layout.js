@@ -64,7 +64,7 @@ class Layout extends Component {
             neighbors={neighbors} />)  
         }
         // if potion
-        if (cell.potion !== false) {
+        else if (cell.potion !== false) {
           return (
             <Cell key={cellNum+rowNum}
             position={[rowNum, cellNum]}
@@ -72,11 +72,19 @@ class Layout extends Component {
             neighbors={neighbors}/>
           )
         }
-        if (cell.room) {
+        else if (cell.room) {
           return (
             <Cell key={cellNum+rowNum}
             position={[rowNum, cellNum]}
             room={true}
+            neighbors={neighbors}/>
+            )
+        }
+        else if (cell.doorway) {
+          return (
+            <Cell key={cellNum+rowNum}
+            position={[rowNum, cellNum]}
+            doorway={true}
             neighbors={neighbors}/>
             )
         }

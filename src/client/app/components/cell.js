@@ -17,11 +17,12 @@ export default class Cell extends Component {
         else if (this.props.potion) {
             style={backgroundColor: 'green'}
         }
-        else if (this.props.room) {
+        else if (this.props.room || this.props.doorway) {
             style={backgroundColor: 'white'}
         }
         return (
             <div className='cell' style={style}>
+                
             </div>
         )
     }
