@@ -23,6 +23,9 @@ export default class Cell extends Component {
         else if (this.props.enemy) {
             style={backgroundColor: 'red'}
         }
+        else if (this.props.stairs) {
+            style={backgroundColor: 'purple'}
+        }
         else if (this.props.room) {
             style={backgroundColor: 'white'}
         }

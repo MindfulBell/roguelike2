@@ -5,3 +5,4 @@ export function moveHero(newPos) {
 		position: newPos
 	}
 }
+

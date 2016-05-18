@@ -12,6 +12,7 @@ class Layout extends Component {
 
     };
     this.handleKey = this.handleKey.bind(this);
+    this.findNeighbors = this.findNeighbors.bind(this);
   }
  
     componentDidMount(){
@@ -20,30 +21,61 @@ class Layout extends Component {
     componentWillUnmount(){
         window.removeEventListener('keyup', this.handleKey)
     }
-  // key press, this function will grow as it needs to check the neighbors before it moves
-  // biggest check will come from an enemy next to it
-    handleKey(e){
+
+    // key press, this function will grow as it needs to check the neighbors before it moves
+    // biggest check will come from an enemy next to it
+
+    findNeighbors(){
       let heroPos = this.props.hero.position
-      let neighbors = 
-      {
-        left: [heroPos[0], heroPos[1]-1],
-        top: [heroPos[0]-1, heroPos[1]],
-        right: [heroPos[0], heroPos[1]+1],
-        bottom: [heroPos[0]+1, heroPos[1]]
-      };
+      let layout = this.props.layout;
+      //flatten to 1d array for filtering to get small array for 4 neighbors
+      let neighbors = []; 
+      for (let i=0; i<layout.length; i++) {
+        neighbors.push(...layout[i])
+      }
+      return neighbors.filter((cell)=>{
+        let xCoord = cell.position[0];
+        let yCoord = cell.position[1];
+          if (xCoord === heroPos[0] && yCoord === heroPos[1]-1) {
+            return true;
+          }
+          else if (xCoord === heroPos[0]-1 && yCoord === heroPos[1]) {
+            return true;
+          }
+          else if (xCoord === heroPos[0] && yCoord === heroPos[1]+1) {
+            return true;
+          }
+          else if (xCoord === heroPos[0]+1 && yCoord === heroPos[1]) {
+            return true;
+          }
+        })
+      // top = 0, left = 1, right = 2, bottom = 3; CAN I FIX THIS? Make a new property for them all defininig their position to hero?
+    }
+    handleKey(e){
+      let heroPos = this.props.hero.position;
+      let neighbors = this.findNeighbors();
+      //THIS IS GOING TO GROW FOR CHECKING NEIGHBORS, MAY NEED REFACTOR!!!
       let move = [heroPos[0], heroPos[1]];
       switch (e.keyCode) {
         case 37:
-          move = neighbors.left;
+          if (!neighbors[1].wall) {
+            move = neighbors[1].position;
+          }          
           break;
         case 38:
-          move = neighbors.top;
+          if (!neighbors[0].wall) {
+            move = neighbors[0].position;
+          }
           break;
         case 39:
-          move = neighbors.right;
+          if (!neighbors[2].wall) {
+            move = neighbors[2].position;
+          }
           break;
         case 40:
-          move = neighbors.bottom;
+          if (!neighbors[3].wall) {
+            move = neighbors[3].position;
+          } 
           break;
       }
       // pulled from actions, redux usage here
@@ -62,7 +94,7 @@ class Layout extends Component {
           bottom: [rowNum+1, cellNum]
         }
         // if hero
-        if (rowNum === heroPos[0] && cellNum === heroPos[1]) {
+        if (rowNum === heroPos[1] && cellNum === heroPos[0]) {
           return (
             <Cell key={cellNum+rowNum} 
             hero={true} 
@@ -93,6 +125,15 @@ class Layout extends Component {
             <Cell key={cellNum+rowNum}
             position={[rowNum, cellNum]}
             enemy={true}
+            neighbors={neighbors}/>
+            )
+        }
+        // if stairs
+        else if (cell.stairs) {
+          return (
+            <Cell key={cellNum+rowNum}
+            position={[rowNum, cellNum]}
+            stairs={true}
             neighbors={neighbors}/>
             )
         }
