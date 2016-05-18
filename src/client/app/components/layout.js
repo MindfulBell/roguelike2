@@ -16,10 +16,10 @@ class Layout extends Component {
   }
  
     componentDidMount(){
-        window.addEventListener('keyup', this.handleKey)
+        window.addEventListener('keydown', this.handleKey)
     }
     componentWillUnmount(){
-        window.removeEventListener('keyup', this.handleKey)
+        window.removeEventListener('keydown', this.handleKey)
     }
 
     // key press, this function will grow as it needs to check the neighbors before it moves
@@ -87,73 +87,36 @@ class Layout extends Component {
     let cells = this.props.layout.map((row, rowNum)=>{
       return row.map((cell,cellNum)=>{
         let heroPos = this.props.hero.position;
-        let neighbors = {
-          left: [rowNum, cellNum-1],
-          top: [rowNum-1, cellNum],
-          right: [rowNum, cellNum+1],
-          bottom: [rowNum+1, cellNum]
-        }
         // if hero
         if (rowNum === heroPos[1] && cellNum === heroPos[0]) {
-          return (
-            <Cell key={cellNum+rowNum} 
-            hero={true} 
-            position={[rowNum, cellNum]} 
-            neighbors={neighbors} />)  
+          return <Cell key={cellNum+rowNum} hero={true} /> 
         }
         // if potion
         else if (cell.potion !== false) {
-          return (
-            <Cell key={cellNum+rowNum}
-            position={[rowNum, cellNum]}
-            potion={true}
-            neighbors={neighbors}/>
-          )
+          return <Cell key={cellNum+rowNum} potion={true} />
         }
         // if weapon
         else if (cell.weapon !== false) {
-          return (
-            <Cell key={cellNum+rowNum}
-            position={[rowNum, cellNum]}
-            weapon={true}
-            neighbors={neighbors}/>
-            )
+          return <Cell key={cellNum+rowNum} weapon={true} />            
         }
         // if enemy
         else if (cell.enemy !== false) {
-          return (
-            <Cell key={cellNum+rowNum}
-            position={[rowNum, cellNum]}
-            enemy={true}
-            neighbors={neighbors}/>
-            )
+          return <Cell key={cellNum+rowNum} enemy={true} />            
         }
         // if stairs
         else if (cell.stairs) {
-          return (
-            <Cell key={cellNum+rowNum}
-            position={[rowNum, cellNum]}
-            stairs={true}
-            neighbors={neighbors}/>
-            )
+          return <Cell key={cellNum+rowNum} stairs={true} />            
         }
         // room has to be the last one. ALL OF THESE NEED TO BE REFACTORED!!
         else if (cell.room) {
-          return (
-            <Cell key={cellNum+rowNum}
-            position={[rowNum, cellNum]}
-            room={true}
-            neighbors={neighbors}/>
-            )
-        }
-        
+          return <Cell key={cellNum+rowNum} room={true} />            
+        }        
         else {
-          return <Cell key={cellNum+rowNum} position={[rowNum, cellNum]} neighbors={neighbors}/>
+          return <Cell key={cellNum+rowNum} wall={true} />
         }
       })
-
     })
-    
+
     return (
       <div className='board'>
         {cells}
