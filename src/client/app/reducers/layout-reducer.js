@@ -1,4 +1,5 @@
 import { board } from './board.js';
+import { REMOVE_ITEM, removeItem } from '../actions/index.js';
 
 function randomInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -19,17 +20,13 @@ function buildBoard(w, h) {
              enemy: false,
              potion: false,
              weapon: false,
-             room: false,
              stairs: false,
              hero: false, // need to inject his position from the hero reducer?
-             wall: false
+             wall: true
           };
           // based on imported generated dungeon board, if item is a 0, it is a room
           if (board[counter] !== 0) {
-            cell.room = true;
-          }
-          else {
-            cell.wall = true;
+            cell.wall = false;
           }
           row.push(cell); 
         }
@@ -51,7 +48,7 @@ function addPotions(board, num = 4){
     let potion = randomInclusive(8,15);
     let newBoard = tempBoard.map((row) => {
       return row.map((cell)=>{
-        if (cell.position[0] === x && cell.position[1] === y && cell.room) {
+        if (cell.position[0] === x && cell.position[1] === y && !cell.wall) {
           count--;
           return Object.assign({}, cell, {potion});
         }
@@ -74,7 +71,7 @@ function addWeapon(board, weapon = {name: 'club', att: 5}){
   let y = randomInclusive(0,29);
   newBoard = board.map((row)=>{
       return row.map((cell)=>{
-        if (cell.position[0] === x && cell.position[1] === y && cell.room && !cell.potion) {
+        if (cell.position[0] === x && cell.position[1] === y && !cell.wall && !cell.potion) {
           foundSpot = true;
           return Object.assign({}, cell, {weapon})
         }
@@ -97,7 +94,7 @@ function addEnemies(board, num = 6){
     let enemy = {lvl: randomInclusive(2,4), hp: randomInclusive(12,20), xp: randomInclusive(6, 10)};
     let newBoard = tempBoard.map((row) => {
       return row.map((cell)=>{
-        if (cell.position[0] === x && cell.position[1] === y && cell.room && !cell.potion && !cell.weapon) {
+        if (cell.position[0] === x && cell.position[1] === y && !cell.wall && !cell.potion && !cell.weapon) {
           count--;
           return Object.assign({}, cell, {enemy});
         }
@@ -120,7 +117,7 @@ function addStairs(board, stairs = true){
   let y = randomInclusive(0,29);
   newBoard = board.map((row)=>{
       return row.map((cell)=>{
-        if (cell.position[0] === x && cell.position[1] === y && cell.room && !cell.potion && !cell.weapon && !cell.enemy) {
+        if (cell.position[0] === x && cell.position[1] === y && !cell.wall && !cell.potion && !cell.weapon && !cell.enemy) {
           foundSpot = true;
           return Object.assign({}, cell, {stairs})
         }
@@ -133,14 +130,36 @@ function addStairs(board, stairs = true){
   return newBoard;
 }
 
+
+
+
+
+
+
 // add a buildHero function and just make an object here?
 const INITIAL_BOARD_STATE = buildBoard(50,30);
 
 export default function(state = INITIAL_BOARD_STATE, action) {
     switch(action.type) {
-        
+        case REMOVE_ITEM:
+        return state.map((row)=>{
+          return row.map((cell)=>{
+            let cellX = cell.position[0];
+            let cellY = cell.position[1];
+            let newCellX = action.cell.position[0];
+            let newCellY = action.cell.position[1];
+            if (cellX === newCellX && cellY === newCellY) {
+              return Object.assign({}, cell, action.cell)
+            }
+            else {
+              return cell;
+            }
+          })
+        })
+        default:
+        return state;
+        // get item at certain position, and change all of its props to false
     }
-    return state;
 }
 
 /*[[{position: [x,y], enemy: false, potion: false, weapon: false},{},{}]
