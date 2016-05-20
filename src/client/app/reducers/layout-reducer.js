@@ -1,5 +1,5 @@
-import { board } from './board.js';
-import { REMOVE_ITEM, removeItem } from '../actions/index.js';
+import { level1 } from './board.js';
+import { REMOVE_POTION, REMOVE_WEAPON } from '../actions/index.js';
 
 function randomInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -8,7 +8,7 @@ function randomInclusive(min, max) {
 //may need to make objects for each level...i.e. level 1 enemies, weapon, potions etc. and on the next level, just inject it all into buildboard as params
 
 //may have to add a ton of parameters to this as it will need to run again on level changes
-function buildBoard(w, h) {
+function buildBoard(w, h, board) {
       let cells = [];
       let counter = 0;
       for (let y=0; y<h; y++) {
@@ -91,7 +91,7 @@ function addEnemies(board, num = 6){
   while (count > 0) {
     let x = randomInclusive(0,49);
     let y = randomInclusive(0,29);
-    let enemy = {lvl: randomInclusive(2,4), hp: randomInclusive(12,20), xp: randomInclusive(6, 10)};
+    let enemy = {lvl: 1, hp: randomInclusive(12,20), xp: randomInclusive(6, 10)};
     let newBoard = tempBoard.map((row) => {
       return row.map((cell)=>{
         if (cell.position[0] === x && cell.position[1] === y && !cell.wall && !cell.potion && !cell.weapon) {
@@ -137,30 +137,47 @@ function addStairs(board, stairs = true){
 
 
 // add a buildHero function and just make an object here?
-const INITIAL_BOARD_STATE = buildBoard(50,30);
+const INITIAL_BOARD_STATE = buildBoard(50,30, level1);
 
+//build a function to repeat finding the element in the board otherwise
+//there will be a lot of repeat code
+
+function findCellMatch(cell, action){
+  
+  let cellX = cell.position[0];
+  let cellY = cell.position[1];
+  let newCellX = action.cell.position[0];
+  let newCellY = action.cell.position[1];
+  
+  return (cellX === newCellX && cellY === newCellY);
+}
 export default function(state = INITIAL_BOARD_STATE, action) {
     switch(action.type) {
-        case REMOVE_ITEM:
+        case REMOVE_POTION:
         return state.map((row)=>{
           return row.map((cell)=>{
-            let cellX = cell.position[0];
-            let cellY = cell.position[1];
-            let newCellX = action.cell.position[0];
-            let newCellY = action.cell.position[1];
-            if (cellX === newCellX && cellY === newCellY) {
-              return Object.assign({}, cell, action.cell)
+            if (findCellMatch(cell, action)) {
+              return Object.assign({}, cell, action.cell);
             }
             else {
               return cell;
             }
-          })
-        })
+          });
+        });
+        
+        case REMOVE_WEAPON:
+        return state.map((row)=>{
+          return row.map((cell)=>{
+            if (findCellMatch(cell, action)) {
+              return Object.assign({}, cell, action.cell);
+            }
+            else {
+              return cell;
+            }
+          });
+        });
+        
         default:
         return state;
-        // get item at certain position, and change all of its props to false
     }
 }
-
-/*[[{position: [x,y], enemy: false, potion: false, weapon: false},{},{}]
-   [{},{},{}]]*/

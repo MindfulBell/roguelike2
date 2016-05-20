@@ -6,19 +6,42 @@ export function moveHero(newPos) {
 	}
 }
 
-export const REMOVE_ITEM = 'REMOVE_ITEM';
-export function removeItem(position){
+//change to remove potion so as to pass as little info as possible  in action?
+export const REMOVE_POTION = 'REMOVE_POTION';
+export function removePotion(position){
 	return {
-		type: REMOVE_ITEM,
+		type: REMOVE_POTION,
 		cell: {
 			position: position,
-    	enemy: false,
-	    potion: false,
-	    weapon: false,
-	    stairs: false,
-	    hero: false, // need to inject his position from the hero reducer?
-	    wall: false
-	  }
+		    potion: false,
+		}
+	}
+}
+
+export const REMOVE_WEAPON = 'REMOVE_WEAPON';
+export function removeWeapon(position){
+	return {
+		type: REMOVE_WEAPON,
+		cell: {
+			position: position,
+		    weapon: false,
+		}
+	}
+}
+
+export const PICKUP_POTION = 'PICKUP_POTION';
+export function pickupPotion(amt){
+	return {
+		type: PICKUP_POTION,
+		hp: amt
+	}
+}
+
+export const PICKUP_WEAPON = 'PICKUP_WEAPON';
+export function pickupWeapon(weapon) {
+	return {
+		type: PICKUP_WEAPON,
+		weapon
 	}
 }
 

@@ -1,9 +1,9 @@
-import { MOVE_HERO, moveHero } from '../actions/index.js'
+import { MOVE_HERO, PICKUP_POTION, PICKUP_WEAPON } from '../actions/index.js'
 
 const INITIAL_HERO_STATE = {
     level: 1,
     hp: 50,
-    weapon: ['fist', 5],
+    weapon: {name: 'fist', att: 5},
     position: [5,5],
     xp: 0
  };
@@ -12,10 +12,10 @@ const INITIAL_HERO_STATE = {
      switch (action.type) {
         case MOVE_HERO:
             return Object.assign({}, state, {position: action.position});
-        // case PICKUP_WEAPON:
-        // 		return Object.assign({}, state, {weapon: action.weapon});
-        // case PICKUP_POTION:
-
+        case PICKUP_WEAPON:
+            return Object.assign({}, state, {weapon: action.weapon});
+        case PICKUP_POTION:
+            return Object.assign({}, state, {hp: state.hp + action.hp});
         // case BATTLE: 
 
         // case STAIRS:

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Cell from './cell.js';
 import { connect } from 'react-redux';
-import { moveHero, removeItem } from '../actions/index.js';
+import { moveHero, removePotion, removeWeapon, pickupPotion, pickupWeapon } from '../actions/index.js';
 import { bindActionCreators } from 'redux';
 
 
@@ -13,8 +13,8 @@ class Layout extends Component {
     };
     this.handleKey = this.handleKey.bind(this);
     this.findNeighbors = this.findNeighbors.bind(this);
-    this.checkNeighbors = this.checkNeighbors.bind(this);
     this.getSingleNeighbor = this.getSingleNeighbor.bind(this);
+    // this.getCell = this.getCell.bind(this);
   }
  
     componentDidMount(){
@@ -24,9 +24,8 @@ class Layout extends Component {
         window.removeEventListener('keydown', this.handleKey)
     }
 
-    // key press, this function will grow as it needs to check the neighbors before it moves
-    // biggest check will come from an enemy next to it
 
+    //mapping a new array of neighbors, top, left, bot, right and giving them a new prop based on direction
     findNeighbors(){
       let heroPos = this.props.hero.position
       let layout = this.props.layout;
@@ -39,7 +38,6 @@ class Layout extends Component {
         let xCoord = cell.position[0];
         let yCoord = cell.position[1];
           if (xCoord === heroPos[0] && yCoord === heroPos[1]-1) {
-            console.log('test')
             return Object.assign({}, cell, {top: true})
           }
           else if (xCoord === heroPos[0]-1 && yCoord === heroPos[1]) {
@@ -57,19 +55,6 @@ class Layout extends Component {
         }).filter((cell)=>{
           return cell.top || cell.left || cell.right || cell.bot;
         })
-
-    }
-
-    checkNeighbors(neighbors, dir){
-      for (let i=0; i<neighbors.length; i++) {
-        if (neighbors[i].hasOwnProperty(dir)) {
-          return true;
-        }
-      }
-    }
-
-    neighborType(){
-
     }
 
     getSingleNeighbor(neighbors, dir){
@@ -79,49 +64,95 @@ class Layout extends Component {
         }
       }
     }
-
-    //WIRE UP THE POTION GET!
-
+    
+    // getCell(pos){
+    //   let layout = [];
+    //   let heroCell = {}
+    //   for (let i=0; i<this.props.layout.length; i++) {
+    //     layout.push(...layout[i])
+    //   }
+    //   layout.forEach((cell)=>{
+    //     if (cell.position[0] === pos[0] && cell.position[1] === pos[1]) {
+    //       heroCell = cell;
+    //     }
+    //   })
+    //   return heroCell;
+    // }
 
     handleKey(e){
+      e.preventDefault();
       let heroPos = this.props.hero.position;
       let neighbors = this.findNeighbors();
+      // let heroCell = this.getCell(heroPos)
+
+      
+      function getMovedTo(neighbors, pos){
+        for (let i=0; i<neighbors.length; i++) {
+          for (let prop in neighbors[i]){
+            let X = neighbors[i][prop][0];
+            let Y = neighbors[i][prop][1];
+            if (X === pos[0] && Y === pos[1]) {
+              return neighbors[i];
+            }
+            else {
+              // return heroCell;
+            }
+          }
+        }
+      }
+      
+      // MAY NOT NEED THESE
       let leftNeighbor = this.getSingleNeighbor(neighbors, 'left');
       let topNeighbor = this.getSingleNeighbor(neighbors, 'top');
       let rightNeighbor = this.getSingleNeighbor(neighbors, 'right');
       let botNeighbor = this.getSingleNeighbor(neighbors, 'bot');
-      // this.checkNeighbors(neighbors[0])
-      //THIS IS GOING TO GROW FOR CHECKING NEIGHBORS, MAY NEED REFACTOR!!!
-      let move = [heroPos[0], heroPos[1]];
+      
+      // Get the x,y of the space we are moving to
+      let move = [];
       switch (e.keyCode) {
         case 37:
-          if (this.checkNeighbors(neighbors, 'left') && !leftNeighbor.wall) {
-            move = [heroPos[0]-1, heroPos[1]]
-            if (leftNeighbor.potion) {
-              this.props.removeItem(move)
-            }            
-          }          
+          //left
+          move = [heroPos[0]-1, heroPos[1]]
           break;
         case 38:
-          if (this.checkNeighbors(neighbors, 'top') && !topNeighbor.wall) {
-            move = [heroPos[0], heroPos[1]-1]
-          }
+          //top
+          move = [heroPos[0], heroPos[1]-1]
           break;
         case 39:
-          if (this.checkNeighbors(neighbors, 'right') && !rightNeighbor.wall) {
-            move = [heroPos[0]+1, heroPos[1]]
-          }
+          //right
+          move = [heroPos[0]+1, heroPos[1]]
           break;
         case 40:
-          if (this.checkNeighbors(neighbors, 'bot') && !botNeighbor.wall) {
-            move = [heroPos[0], heroPos[1]+1]
-          } 
+          //bot
+          move = [heroPos[0], heroPos[1]+1]
+          break;
+        default: 
+          move = [heroPos[0], heroPos[1]];
           break;
       }
-      // pulled from actions, redux usage here
-      this.props.moveHero(move);
-      // if moving into a space with an item, need to dispatch some actions
-
+      
+      // get the cell object you are moving to
+      let movingTo = getMovedTo(neighbors, move)
+      
+      // if it isn't a wall, it isn't a border, and it isn't an enemy
+      if (movingTo !== undefined && !movingTo.wall && !movingTo.enemy) {
+        this.props.moveHero(move)
+        if (movingTo.potion){ 
+          this.props.removePotion(move); 
+          this.props.healHero(movingTo.potion); 
+        }
+        else if (movingTo.weapon){ 
+          this.props.removeWeapon(move) 
+          this.props.getWeaponHero(movingTo.weapon);
+        }
+        else if (movingTo.stairs){ 
+          /* go down stairs */ 
+        }
+      }
+      
+      else if (movingTo.enemy) {
+        console.log('ENEMY!')
+      }
     }
 
   render() {
@@ -165,7 +196,7 @@ class Layout extends Component {
           <h3>Level: {this.props.hero.level}</h3>
           <h3>Position: {this.props.hero.position[0]}, {this.props.hero.position[1]}</h3>
           <h3>HP: {this.props.hero.hp}</h3>
-          <h3>Weapon: {this.props.hero.weapon}</h3>
+          <h3>Weapon: {this.props.hero.weapon.name}</h3>
           <h3>XP: {this.props.hero.xp}</h3>
         </div>
         <div className='board'>
@@ -175,6 +206,8 @@ class Layout extends Component {
     );
   }
 }
+
+
 
 const mapStateToProps = (state) => {
   return { 
@@ -186,7 +219,10 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     moveHero: (newPos) => {dispatch(moveHero(newPos))},
-    removeItem: (position) => {dispatch(removeItem(position))}
+    removePotion: (position) => {dispatch(removePotion(position))},
+    removeWeapon: (position) => {dispatch(removeWeapon(position))},
+    healHero: (amt) => {dispatch(pickupPotion(amt))},
+    getWeaponHero: (weapon) => {dispatch(pickupWeapon(weapon))}
   }
 }
 
