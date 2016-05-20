@@ -5,7 +5,8 @@ const INITIAL_HERO_STATE = {
     hp: 50,
     weapon: {name: 'fist', att: 5},
     position: [5,5],
-    xp: 0
+    xp: 0,
+    level2xp: 45
  };
  
  export default function (state = INITIAL_HERO_STATE, action) {

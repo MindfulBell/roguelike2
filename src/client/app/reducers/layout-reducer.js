@@ -1,9 +1,7 @@
 import { level1 } from './board.js';
-import { REMOVE_POTION, REMOVE_WEAPON } from '../actions/index.js';
+import { REMOVE_POTION, REMOVE_WEAPON, HIT_ENEMY } from '../actions/index.js';
+import { randomInclusive } from '../utils/index.js'
 
-function randomInclusive(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 
 //may need to make objects for each level...i.e. level 1 enemies, weapon, potions etc. and on the next level, just inject it all into buildboard as params
 
@@ -146,11 +144,12 @@ function findCellMatch(cell, action){
   
   let cellX = cell.position[0];
   let cellY = cell.position[1];
-  let newCellX = action.cell.position[0];
-  let newCellY = action.cell.position[1];
+  let newCellX = action.position[0];
+  let newCellY = action.position[1];
   
   return (cellX === newCellX && cellY === newCellY);
 }
+
 export default function(state = INITIAL_BOARD_STATE, action) {
     switch(action.type) {
         case REMOVE_POTION:
@@ -170,6 +169,25 @@ export default function(state = INITIAL_BOARD_STATE, action) {
           return row.map((cell)=>{
             if (findCellMatch(cell, action)) {
               return Object.assign({}, cell, action.cell);
+            }
+            else {
+              return cell;
+            }
+          });
+        });
+
+        case HIT_ENEMY:
+        return state.map((row)=>{
+          return row.map((cell)=>{
+            if (findCellMatch(cell, action)) {
+              // did we damage it enough to kill it? change presence of enemy to false; 
+              // else, just reduce its hp to new hp value
+
+              //NEEDS REFACTORING!
+              let newHP = action.hit.enemy.hp
+
+              //HOW DO I ADJUST THE OBJECT WITHIN AN OBJECT WITH OBJECT.ASSIGN? I need to get into cell.enemy...
+              return newHP <= 0 ? Object.assign({}, cell, action.dead) : Object.assign({}, cell, action.hit)
             }
             else {
               return cell;

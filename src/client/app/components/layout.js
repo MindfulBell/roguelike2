@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import Cell from './cell.js';
 import { connect } from 'react-redux';
-import { moveHero, removePotion, removeWeapon, pickupPotion, pickupWeapon } from '../actions/index.js';
+import { moveHero, removePotion, removeWeapon, pickupPotion, pickupWeapon, hitEnemy } from '../actions/index.js';
 import { bindActionCreators } from 'redux';
+import { randomInclusive } from '../utils/index.js'
 
 
 class Layout extends Component {
@@ -65,22 +66,21 @@ class Layout extends Component {
       }
     }
     
-    // getCell(pos){
-    //   let layout = [];
-    //   let heroCell = {}
-    //   for (let i=0; i<this.props.layout.length; i++) {
-    //     layout.push(...layout[i])
-    //   }
-    //   layout.forEach((cell)=>{
-    //     if (cell.position[0] === pos[0] && cell.position[1] === pos[1]) {
-    //       heroCell = cell;
-    //     }
-    //   })
-    //   return heroCell;
-    // }
+    getCell(pos){
+      let layout = [];
+      let heroCell = {}
+      for (let i=0; i<this.props.layout.length; i++) {
+        layout.push(...this.props.layout[i])
+      }
+      layout.forEach((cell)=>{
+        if (cell.position[0] === pos[0] && cell.position[1] === pos[1]) {
+          heroCell = cell;
+        }
+      })
+      return heroCell;
+    }
 
     handleKey(e){
-      e.preventDefault();
       let heroPos = this.props.hero.position;
       let neighbors = this.findNeighbors();
       // let heroCell = this.getCell(heroPos)
@@ -135,24 +135,50 @@ class Layout extends Component {
       let movingTo = getMovedTo(neighbors, move)
       
       // if it isn't a wall, it isn't a border, and it isn't an enemy
-      if (movingTo !== undefined && !movingTo.wall && !movingTo.enemy) {
-        this.props.moveHero(move)
-        if (movingTo.potion){ 
-          this.props.removePotion(move); 
-          this.props.healHero(movingTo.potion); 
+
+      // COULD pass entire object to the actions instead of position
+
+      if (movingTo !== undefined) {
+        if (!movingTo.wall && !movingTo.enemy) {
+          this.props.moveHero(move)
+          if (movingTo.potion){ 
+            this.props.removePotion(move); 
+            this.props.healHero(movingTo.potion); 
+          }
+          else if (movingTo.weapon){ 
+            this.props.removeWeapon(move) 
+            this.props.getWeaponHero(movingTo.weapon);
+          }
+          else if (movingTo.stairs){ 
+            /* go down stairs */ 
+          }
         }
-        else if (movingTo.weapon){ 
-          this.props.removeWeapon(move) 
-          this.props.getWeaponHero(movingTo.weapon);
-        }
-        else if (movingTo.stairs){ 
-          /* go down stairs */ 
+        else if (movingTo.enemy) {
+          //hero attack is level + att of weapon
+          let hero = this.props.hero;
+          let heroAttack = hero.level + hero.weapon.att;
+          // enemy attack is based off level, so if 1, random # between etc.
+          let enemy = movingTo.enemy;
+          let enemyHP = enemy.hp;
+          enemyHP -= heroAttack;
+          console.log(enemyHP, heroAttack)
+          this.props.hitEnemy(move, enemyHP)
+
+          let enemyAttack = 0;          
+          switch (enemy.lvl){
+            case 1:
+              enemyAttack = randomInclusive(4,7)
+              break;
+            case 2: 
+              enemyAttack = randomInclusive(8,12)
+              break;
+            case 3:
+              enemyAttack = randomInclusive(14,17)
+              break;
+          }          
         }
       }
-      
-      else if (movingTo.enemy) {
-        console.log('ENEMY!')
-      }
+
     }
 
   render() {
@@ -222,7 +248,8 @@ const mapDispatchToProps = (dispatch) => {
     removePotion: (position) => {dispatch(removePotion(position))},
     removeWeapon: (position) => {dispatch(removeWeapon(position))},
     healHero: (amt) => {dispatch(pickupPotion(amt))},
-    getWeaponHero: (weapon) => {dispatch(pickupWeapon(weapon))}
+    getWeaponHero: (weapon) => {dispatch(pickupWeapon(weapon))},
+    hitEnemy: (position, hp) => {dispatch(hitEnemy(position, hp))}
   }
 }
 

@@ -11,9 +11,9 @@ export const REMOVE_POTION = 'REMOVE_POTION';
 export function removePotion(position){
 	return {
 		type: REMOVE_POTION,
+		position,
 		cell: {
-			position: position,
-		    potion: false,
+		  potion: false,
 		}
 	}
 }
@@ -22,9 +22,9 @@ export const REMOVE_WEAPON = 'REMOVE_WEAPON';
 export function removeWeapon(position){
 	return {
 		type: REMOVE_WEAPON,
-		cell: {
-			position: position,
-		    weapon: false,
+		position,
+		cell: {			
+		  weapon: false,
 		}
 	}
 }
@@ -45,3 +45,17 @@ export function pickupWeapon(weapon) {
 	}
 }
 
+//NEEDS REFACTORING!
+export const HIT_ENEMY = 'HIT_ENEMY';
+export function hitEnemy(position, hp){
+	return {
+		type: HIT_ENEMY,
+		position,
+		hit: {
+			enemy: { hp }
+		},
+		dead: {
+			enemy: false
+		}
+	}
+}
