@@ -7,6 +7,7 @@ body {
     width: 750px;
     background-color: white;
     margin: 0 auto;
+    z-index: -1;
 }
 
 .cell {
@@ -14,4 +15,12 @@ body {
     width: 15px;
     background-color: gray;
     display: inline-block;
+}
+
+.loseMessage {
+    height: 200px;
+    width: 200px;
+    margin: 0 auto;
+    font-size: 4em;
+    text-align: center;
 }
