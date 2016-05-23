@@ -3,7 +3,7 @@ import { MOVE_HERO, PICKUP_POTION, PICKUP_WEAPON, DMG_HERO, GAIN_XP, LEVEL_UP } 
 const INITIAL_HERO_STATE = {
     level: 1,
     hp: 50,
-    weapon: {name: 'fist', att: 5},
+    weapon: {name: 'Cheese Grater of Grateness', att: 5},
     position: [5,5],
     xp: 0,
  };
@@ -23,7 +23,7 @@ const INITIAL_HERO_STATE = {
         case GAIN_XP: 
             return Object.assign({}, state, {xp: action.xp})
         case LEVEL_UP:
-            return Object.assign({}, state, {lvl: action.lvl}, {hp: action.hp})
+            return Object.assign({}, state, {level: action.lvl}, {hp: action.hp})
 
         // case STAIRS:
 

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Cell from './cell.js';
 import { connect } from 'react-redux';
-import { moveHero, removePotion, removeWeapon, pickupPotion, pickupWeapon, hitEnemy, dmgHero, gainXP, levelUp } from '../actions/index.js';
+import { moveHero, removePotion, removeWeapon, pickupPotion, pickupWeapon, hitEnemy, dmgHero, gainXP, levelUp, newLevel } from '../actions/index.js';
 import { bindActionCreators } from 'redux';
 import { randomInclusive } from '../utils/index.js'
 
@@ -18,12 +18,14 @@ class Layout extends Component {
     this.getSingleNeighbor = this.getSingleNeighbor.bind(this);
     // this.getCell = this.getCell.bind(this);
   }
- 
-    componentDidMount(){
-        window.addEventListener('keydown', this.handleKey)
+    componentWillMount(){
+      this.props.newLevel()
+    }
+    componentDidMount(){      
+      window.addEventListener('keydown', this.handleKey)
     }
     componentWillUnmount(){
-        window.removeEventListener('keydown', this.handleKey)
+      window.removeEventListener('keydown', this.handleKey)
     }
 
 
@@ -82,126 +84,144 @@ class Layout extends Component {
     }
 
     handleKey(e){
-      let heroPos = this.props.hero.position;
-      let neighbors = this.findNeighbors();
-      
-      function getMovedTo(neighbors, pos){
-        for (let i=0; i<neighbors.length; i++) {
-          for (let prop in neighbors[i]){
-            let X = neighbors[i][prop][0];
-            let Y = neighbors[i][prop][1];
-            if (X === pos[0] && Y === pos[1]) {
-              return neighbors[i];
+      if (!this.state.playerDead) {
+        let heroPos = this.props.hero.position;
+        let neighbors = this.findNeighbors();
+        
+        function getMovedTo(neighbors, pos){
+          for (let i=0; i<neighbors.length; i++) {
+            for (let prop in neighbors[i]){
+              let X = neighbors[i][prop][0];
+              let Y = neighbors[i][prop][1];
+              if (X === pos[0] && Y === pos[1]) {
+                return neighbors[i];
+              }
             }
           }
         }
-      }
-      
-      // MOVEMENT
-      // Get the x,y of the space we are moving to
-      let move = [];
-      switch (e.keyCode) {
-        case 37:
-          //left
-          move = [heroPos[0]-1, heroPos[1]]
-          break;
-        case 38:
-          //top
-          move = [heroPos[0], heroPos[1]-1]
-          break;
-        case 39:
-          //right
-          move = [heroPos[0]+1, heroPos[1]]
-          break;
-        case 40:
-          //bot
-          move = [heroPos[0], heroPos[1]+1]
-          break;
-        default: 
-          move = [heroPos[0], heroPos[1]];
-          break;
-      }
-      
-      // get the cell object you are moving to
-      let movingTo = getMovedTo(neighbors, move)
-
-      
-      // if it isn't a wall, it isn't a border, and it isn't an enemy
-
-      // COULD pass entire object to the actions instead of position
-
-      if (movingTo !== undefined) {
-        if (!movingTo.wall && !movingTo.enemy) {
-          this.props.moveHero(move)
-          if (movingTo.potion){
-            let hp = this.props.hero.hp + movingTo.potion;
-            this.props.removePotion(move); 
-            this.props.healHero(hp); 
-          }
-          else if (movingTo.weapon){ 
-            this.props.removeWeapon(move) 
-            this.props.getWeaponHero(movingTo.weapon);
-          }
-          else if (movingTo.stairs){ 
-            /* go down stairs */ 
-          }
+        
+        // MOVEMENT
+        // Get the x,y of the space we are moving to
+        let move = [];
+        switch (e.keyCode) {
+          case 37:
+            //left
+            move = [heroPos[0]-1, heroPos[1]]
+            break;
+          case 38:
+            //top
+            move = [heroPos[0], heroPos[1]-1]
+            break;
+          case 39:
+            //right
+            move = [heroPos[0]+1, heroPos[1]]
+            break;
+          case 40:
+            //bot
+            move = [heroPos[0], heroPos[1]+1]
+            break;
+          default: 
+            move = [heroPos[0], heroPos[1]];
+            break;
         }
-        else if (movingTo.enemy) {
-          //hero attack is level + att of weapon
-          let hero = this.props.hero;
-          let heroAttack = hero.level + hero.weapon.att;
-          let heroHP = this.props.hero.hp;
-          let heroXP = this.props.hero.xp;
-          let heroLvl = this.props.hero.level;
-          
-           //XP Thresholds: 40, 85, 120
+        
+        // get the cell object you are moving to
+        let movingTo = getMovedTo(neighbors, move)
 
-      
-          let enemy = movingTo.enemy;
-          let enemyHP = enemy.hp;
-          let enemyXP = enemy.xp;
-          
-          //ATTACK ENEMY
-          enemyHP -= heroAttack;
-          this.props.hitEnemy(move, enemy, enemyHP);
-   
-          // enemy attack is based off level, so if level 1, 2, 3 etc, random # between
-          let enemyAttack = 0;  
-          switch (movingTo.enemy.lvl){
-            case 1:
-              enemyAttack = randomInclusive(4,7);
-              break;
-            case 2: 
-              enemyAttack = randomInclusive(8,12);
-              break;
-            case 3:
-              enemyAttack = randomInclusive(14,17);
-              break;
+        //based on what it is, do various things
+        if (movingTo !== undefined) {
+          if (!movingTo.wall && !movingTo.enemy) {
+            this.props.moveHero(move)
+            if (movingTo.potion){
+              let hp = this.props.hero.hp + movingTo.potion;
+              this.props.removePotion(move); 
+              this.props.healHero(hp); 
+            }
+            else if (movingTo.weapon){ 
+              this.props.removeWeapon(move) 
+              this.props.getWeaponHero(movingTo.weapon);
+            }
+            else if (movingTo.stairs){ 
+              console.log(movingTo.currentStage)
+              switch (movingTo.currentStage) {
+
+                case 1:
+                  this.props.newLevel(2)
+                  break;
+                case 2:
+                  this.props.newLevel(3)
+                  break;
+                case 3: 
+                  this.props.newLevel(4)
+                  break;
+                default:
+                  this.props.newLevel(1)
+                  break;          
+              } 
+            }
           }
-          
-          //ATTACK HERO
-          heroHP -= enemyAttack;
-          this.props.dmgHero(heroHP);
-          
-          //CHECK IF KILLED/HERO DEAD
-          if (enemyHP <= 0 && heroHP > 0) {
-            //not dead and killed enemy, get xp
-            let totalXP = heroXP + enemyXP;
-            this.props.gainXP(totalXP)
+          else if (movingTo.enemy) {
+            //HERO STATS
+
+            //hero attack is level + att of weapon
+            let hero = this.props.hero;
+            let heroAttack = hero.level + hero.weapon.att;
+            let heroHP = this.props.hero.hp;
+            let heroXP = this.props.hero.xp;
+            let heroLvl = this.props.hero.level;
+
+            // ENEMY STATS
+            let enemy = movingTo.enemy;
+            let enemyHP = enemy.hp;
+            let enemyXP = enemy.xp;
             
-            // hitpoint boost on level up
-            let levelupHP = heroHP + 50
+            //ATTACK ENEMY
+            enemyHP -= heroAttack;
+            this.props.hitEnemy(move, enemy, enemyHP);
+
+
+            //ATTACK HERO
+            // enemy attack is based off level
+            let enemyAttack = 0;  
+            switch (movingTo.enemy.lvl){
+              case 1:
+                enemyAttack = randomInclusive(4,7);
+                break;
+              case 2: 
+                enemyAttack = randomInclusive(8,12);
+                break;
+              case 3:
+                enemyAttack = randomInclusive(14,17);
+                break;
+              case 4: 
+                enemyAttack = randomInclusive(20,23);
+                break;
+            }           
             
-            if (totalXP > 40 && totalXP < 85){this.props.levelUp(2, levelupHP)}
-            if (totalXP > 85 && totalXP < 120){this.props.levelUp(3, levelupHP)}
-            if (totalXP > 120){this.props.levelUp(4, levelupHP)}
+            heroHP -= enemyAttack;
+            this.props.dmgHero(heroHP);
+            
+            // CHECK IF KILLED/HERO DEAD/XP BOOST
+            if (enemyHP <= 0 && heroHP > 0) {
+              //not dead and killed enemy, get xp
+              let totalXP = heroXP + enemyXP;
+              this.props.gainXP(totalXP)
+              
+
+              // CHECK LEVEL UP?
+              // hitpoint boost on level up
+              let levelupHP = heroHP + 50
+                          
+              //XP Thresholds: 40, 85, 120
+              if (totalXP >= 40 && totalXP < 85 && heroLvl === 1){this.props.levelUp(2, levelupHP)}
+              if (totalXP >= 85 && totalXP < 120 && heroLvl === 2){this.props.levelUp(3, levelupHP)}
+              if (totalXP >= 120 && heroLvl === 3){this.props.levelUp(4, levelupHP)}
+            }
+            else if (heroHP <= 0) {
+              //set local state as a flag 'hero dead' to add some div message
+              this.setState({playerDead: true})
+            }            
           }
-          else if (heroHP <= 0) {
-            //set local state as a flag 'hero dead' to add some div message
-            this.setState({playerDead: true})
-          }
-          
-          /* NEXT: BUILD STAIRS */
         }
       }
 
@@ -285,7 +305,8 @@ const mapDispatchToProps = (dispatch) => {
     hitEnemy: (position, ene, hp) => {dispatch(hitEnemy(position, ene, hp))},
     dmgHero: (hp) => {dispatch(dmgHero(hp))},
     gainXP: (xp) => {dispatch(gainXP(xp))},
-    levelUp: (lvl, hp) => {dispatch(levelUp(lvl, hp))}
+    levelUp: (lvl, hp) => {dispatch(levelUp(lvl, hp))},
+    newLevel: (num) => {dispatch(newLevel(num))}
   }
 }
 
