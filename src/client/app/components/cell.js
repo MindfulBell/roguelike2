@@ -11,7 +11,10 @@ export default class Cell extends Component {
 
     render() {
         let style = {};
-        if (this.props.hero) {
+        if (this.props.hidden) {
+            style={backgroundColor: 'black'}
+        }
+        else if (this.props.hero) {
             style={backgroundColor: 'blue'}
         }
         else if (this.props.potion) {
@@ -19,6 +22,9 @@ export default class Cell extends Component {
         }
         else if (this.props.weapon) {
             style={backgroundColor: 'orange'}
+        }
+        else if (this.props.boss) {
+            style={backgroundColor: 'yellow'}
         }
         else if (this.props.enemy) {
             style={backgroundColor: 'red'}

@@ -1,7 +1,7 @@
 import { level1, level2, level3, level4, weapon2, weapon3, weapon4 } from '../reducers/board.js';
 import { randomInclusive } from '../utils/index.js'
 
-function buildBoard(board, currentStage = 1, hp1 = 9, hp2 = 16, weapon = {name: 'Club of Cockiness', att: 5}, enemylvl = 1, boss = false) {
+function buildBoard(board, currentStage = 1, hp1 = 9, hp2 = 16, weapon = {name: 'Club of Cockiness', att: 5}, enemylvl = 1, lastLevel = false) {
   let cells = [];
   let counter = 0;
   for (let y=0; y<30; y++) {
@@ -29,9 +29,12 @@ function buildBoard(board, currentStage = 1, hp1 = 9, hp2 = 16, weapon = {name: 
   }
   cells = addPotions(cells, hp1, hp2);
   cells = addWeapon(cells, weapon);
-  cells = addEnemies(cells, enemylvl, boss);
-  if (!boss) {
+  cells = addEnemies(cells, enemylvl, lastLevel);
+  if (!lastLevel) {
   	cells = addStairs(cells);
+	}
+	else if (lastLevel) {
+	  cells = addBoss(cells);
 	}
 
   return cells;
@@ -60,7 +63,6 @@ function addPotions(board, hp1, hp2){
   return tempBoard;
 }
 
-
 function addWeapon(board, weapon){
   let newBoard= [];
   let foundSpot = false;
@@ -82,14 +84,29 @@ function addWeapon(board, weapon){
   return newBoard;
 }
 
-
-function addEnemies(board, enemylvl, boss){
+function addEnemies(board, enemylvl){
   let tempBoard = board;
   let enemyCount = 6;
   while (enemyCount > 0) {
     let x = randomInclusive(0,49);
     let y = randomInclusive(0,29);
-    let enemy = {lvl: enemylvl, hp: randomInclusive(12,20), xp: randomInclusive(6, 10)};
+    let enemyhp = 0;
+    switch (enemylvl){
+    	case 1:
+    		enemyhp = randomInclusive(12,19)
+    		break;
+    	case 2:
+    		enemyhp = randomInclusive(19,28)
+    		break;
+    	case 3:
+    		enemyhp = randomInclusive(28,35)
+    		break;
+    	case 4:
+    		enemyhp = randomInclusive(35,40)
+    		break;
+    }
+    let enemy = {lvl: enemylvl, hp: enemyhp, xp: randomInclusive(6, 10)};
+
     let newBoard = tempBoard.map((row) => {
       return row.map((cell)=>{
         if (cell.position[0] === x && cell.position[1] === y && !cell.wall && !cell.potion && !cell.weapon) {
@@ -128,31 +145,46 @@ function addStairs(board){
     return newBoard;  
 }
 
+function addBoss(board){
+  let newBoard= [];
+  let foundSpot = false;
+  while (!foundSpot) {
+  let x = randomInclusive(0,49);
+  let y = randomInclusive(0,29);
+  let bossObj = {
+    enemy: {lvl: 5, hp: 55}, 
+    boss: true
+  }
+  newBoard = board.map((row)=>{
+      return row.map((cell)=>{
+        if (cell.position[0] === x && cell.position[1] === y && !cell.wall && !cell.potion) {
+          foundSpot = true;
+          return Object.assign({}, cell, bossObj)
+        }
+        else {
+          return cell;
+        }
+      })
+    })
+  }
+  return newBoard;
+}
+
 
 let board1 = buildBoard(level1);
-let board2 = buildBoard(level2, 2, 12, 19, weapon2, 2);
-let board3 = buildBoard(level3, 3, 15, 22, weapon3, 3);
-let board4 = buildBoard(level4, 4, 17, 25, weapon4, 4, true);
+let board2 = buildBoard(level2, 2, 18, 25, weapon2, 2);
+let board3 = buildBoard(level3, 3, 25, 30, weapon3, 3);
+let board4 = buildBoard(level4, 4, 30, 35, weapon4, 4, true);
 
 /* LAYOUT ACTIONS */
 
-export const REMOVE_POTION = 'REMOVE_POTION';
-export function removePotion(position){
+export const REMOVE_ITEM = 'REMOVE_WEAPON';
+export function removeItem(position){
 	return {
-		type: REMOVE_POTION,
+		type: REMOVE_ITEM,
 		position,
 		cell: {
 		  potion: false,
-		}
-	};
-}
-
-export const REMOVE_WEAPON = 'REMOVE_WEAPON';
-export function removeWeapon(position){
-	return {
-		type: REMOVE_WEAPON,
-		position,
-		cell: {			
 		  weapon: false,
 		}
 	};
@@ -164,9 +196,17 @@ export function hitEnemy(position, ene, newHP){
 		type: HIT_ENEMY,
 		position,
 		hit: {
-			enemy: { hp: newHP, lvl: ene.lvl, xp: ene.xp }
+			enemy: { 
+			  hp: newHP, 
+			  lvl: ene.lvl, 
+			  xp: ene.xp 
+			  
+			}
 		},
-		dead: { enemy: false }
+		dead: { 
+		  enemy: false,
+		  boss: false
+		}
 	};
 }
 
@@ -242,6 +282,14 @@ export function levelUp(lvl, hp) {
 		type: LEVEL_UP,
 		lvl,
 		hp
+	};
+}
+
+export const NEW_POSITION = 'NEW_POSITION';
+export function newPosition(){
+	return {
+		type: NEW_POSITION,
+		position: [5, 20]
 	};
 }
 

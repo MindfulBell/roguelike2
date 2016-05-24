@@ -1,4 +1,4 @@
-import { REMOVE_POTION, REMOVE_WEAPON, HIT_ENEMY, NEW_LEVEL } from '../actions/index.js';
+import { REMOVE_ITEM, HIT_ENEMY, NEW_LEVEL } from '../actions/index.js';
 
 
 //may need to make objects for each level...i.e. level 1 enemies, weapon, potions etc. and on the next level, just inject it all into buildboard as params
@@ -11,7 +11,7 @@ import { REMOVE_POTION, REMOVE_WEAPON, HIT_ENEMY, NEW_LEVEL } from '../actions/i
 //build a function to repeat finding the element in the board otherwise
 //there will be a lot of repeat code
 
-//NEXT UP: position the hero properly, add a boss, add darkness
+//NEXT UP: Button to toggle darkness, add a key for symbols, add icons?, Add a hero status div, level up effect/celebration, Refactor
 
 function findCellMatch(cell, action){
   
@@ -25,20 +25,8 @@ function findCellMatch(cell, action){
 
 export default function(state = [], action) {
     switch(action.type) {
-        case REMOVE_POTION:
-          return state.map((row)=>{
-            return row.map((cell)=>{
-              if (findCellMatch(cell, action)) {
-                return Object.assign({}, cell, action.cell);
-              }
-              else {
-                return cell;
-              }
-            });
-          });
-        break;
         
-        case REMOVE_WEAPON:
+        case REMOVE_ITEM:
           return state.map((row)=>{
             return row.map((cell)=>{
               if (findCellMatch(cell, action)) {
@@ -49,7 +37,6 @@ export default function(state = [], action) {
               }
             });
           });
-        break;
 
         case HIT_ENEMY:
           return state.map((row)=>{
@@ -65,14 +52,12 @@ export default function(state = [], action) {
               }
             });
           });
-        break;
 
         case NEW_LEVEL:
-          return action.newBoard 
-          break;
+          return action.newBoard;
+
 
         default:
           return state;
-          break;
     }
 }

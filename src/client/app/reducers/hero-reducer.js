@@ -1,14 +1,12 @@
-import { MOVE_HERO, PICKUP_POTION, PICKUP_WEAPON, DMG_HERO, GAIN_XP, LEVEL_UP } from '../actions/index.js'
+import { MOVE_HERO, PICKUP_POTION, PICKUP_WEAPON, DMG_HERO, GAIN_XP, LEVEL_UP, NEW_POSITION } from '../actions/index.js'
 
 const INITIAL_HERO_STATE = {
     level: 1,
     hp: 50,
     weapon: {name: 'Cheese Grater of Grateness', att: 5},
-    position: [5,5],
+    position: [4, 20],
     xp: 0,
  };
- 
- //XP Thresholds: 50, 110, 160
  
  export default function (state = INITIAL_HERO_STATE, action) {
      switch (action.type) {
@@ -17,16 +15,14 @@ const INITIAL_HERO_STATE = {
         case PICKUP_WEAPON:
             return Object.assign({}, state, {weapon: action.weapon});
         case PICKUP_POTION:
-            return Object.assign({}, state, {hp: action.hp});
         case DMG_HERO:
-            return Object.assign({}, state, {hp: action.hp})
+            return Object.assign({}, state, {hp: action.hp});
         case GAIN_XP: 
-            return Object.assign({}, state, {xp: action.xp})
+            return Object.assign({}, state, {xp: action.xp});
         case LEVEL_UP:
             return Object.assign({}, state, {level: action.lvl}, {hp: action.hp})
-
-        // case STAIRS:
-
+        case NEW_POSITION:
+            return Object.assign({}, state, {position: action.position})
      }
      return state;
  } 
