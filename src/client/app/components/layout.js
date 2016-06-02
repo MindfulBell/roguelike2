@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Cell from './cell.js';
 import { connect } from 'react-redux';
-import { moveHero, removeItem, pickupPotion, pickupWeapon, hitEnemy, dmgHero, gainXP, levelUp, newLevel, newPosition } from '../actions/index.js';
+import { moveHero, removeItem, pickupPotion, pickupWeapon, hitEnemy, dmgHero, gainXP, levelUp, newLevel, newPosition, resetHero } from '../actions/index.js';
 import { bindActionCreators } from 'redux';
 import { randomInclusive } from '../utils/index.js'
 
@@ -18,6 +18,7 @@ class Layout extends Component {
     this.findNeighbors = this.findNeighbors.bind(this);
     this.getMovedTo = this.getMovedTo.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.handleRestart = this.handleRestart.bind(this);
   }
     componentWillMount(){
       this.props.newLevel();
@@ -62,6 +63,7 @@ class Layout extends Component {
         })
     }
     
+    //gets the object neighbor we are moving to
     getMovedTo(neighbors, pos){
       for (let i=0; i<neighbors.length; i++) {
         for (let prop in neighbors[i]){
@@ -74,10 +76,19 @@ class Layout extends Component {
       }
     }
     
+    //turn on the lights
     handleClick(){
       this.setState({seeAll: !this.state.seeAll});
     }
-
+    
+    //restart the game on death/win
+    handleRestart(){
+      this.setState({playerDead: false, bossDead: false});
+      this.props.newLevel(1);
+      this.props.resetHero();
+    }
+    
+    //big handle movement function
     handleKey(e){
       e.preventDefault();
       if (!this.state.playerDead && !this.state.bossDead) {
@@ -117,15 +128,18 @@ class Layout extends Component {
         if (movingTo !== undefined) {
           if (!movingTo.wall && !movingTo.enemy) {
             this.props.moveHero(move)
+            //pick up a potion
             if (movingTo.potion){
               let hp = this.props.hero.hp + movingTo.potion;
               this.props.removeItem(move); 
               this.props.healHero(hp); 
             }
+            //pick up a weapon
             else if (movingTo.weapon){ 
               this.props.removeItem(move) 
               this.props.getWeaponHero(movingTo.weapon);
             }
+            //move to a new level
             else if (movingTo.stairs){ 
               switch (movingTo.currentStage) {
 
@@ -145,6 +159,8 @@ class Layout extends Component {
               this.props.newPosition();
             }
           }
+          
+          //fighting enemy
           else if (movingTo.enemy) {
             //HERO STATS
 
@@ -200,7 +216,11 @@ class Layout extends Component {
               let levelupHP = heroHP + 50
                           
               //XP Thresholds: 35, 85, 120
-              if (totalXP >= 35 && totalXP < 85 && heroLvl === 1){this.props.levelUp(2, levelupHP)}
+              if (totalXP >= 35 && totalXP < 85 && heroLvl === 1) {
+                this.props.levelUp(2, levelupHP)
+                this.setState({levelUp: true})
+                this.animateLvl();
+              }
               if (totalXP >= 85 && totalXP < 120 && heroLvl === 2){this.props.levelUp(3, levelupHP)}
               if (totalXP >= 120 && heroLvl === 3){this.props.levelUp(4, levelupHP)}
               if (movingTo.boss) {
@@ -218,19 +238,24 @@ class Layout extends Component {
     }
 
   render() {
-    // building the map, pulled layout from global state/redux
-    let nextLevel = 0; 
+    
+    //display xp level of hero
+    let xpStatus = 0;
+    let heroXP = this.props.hero.xp
     switch (this.props.hero.level) {
       case 1:
-      nextLevel = 35
+      xpStatus = `${heroXP} / 35`
       break;
       case 2:
-      nextLevel = 85
+      xpStatus = `${heroXP} / 85`
       break;
       case 3:
-      nextLevel = 120
+      xpStatus = `${heroXP} / 120`
       break;
+      default: 
+      xpStatus = 'MAX'
     }
+    
     let cells = this.props.layout.map((row, rowNum)=>{
       return row.map((cell,cellNum)=>{
         let heroPos = this.props.hero.position;
@@ -243,19 +268,19 @@ class Layout extends Component {
           return <Cell key={cellNum+rowNum} hero={true} /> 
         }
         // if potion
-        else if (cell.potion !== false) {
+        else if (cell.potion) {
           return <Cell key={cellNum+rowNum} potion={true} />
         }
         // if weapon
-        else if (cell.weapon !== false) {
+        else if (cell.weapon) {
           return <Cell key={cellNum+rowNum} weapon={true} />            
         }
         // if boss
-        else if (cell.boss !== false) {
+        else if (cell.boss) {
           return <Cell key={cellNum+rowNum} boss={true} />
         }
         // if enemy
-        else if (cell.enemy !== false) {
+        else if (cell.enemy) {
           return <Cell key={cellNum+rowNum} enemy={true} />            
         }
         // if stairs
@@ -271,12 +296,20 @@ class Layout extends Component {
       })
     })
     
-    let message = this.state.playerDead ? 'YOU DIED!' : 'YOU WON!';
+    let deadMessage = this.state.playerDead ? 'YOU DIED!!' : false;
+    let winMessage = this.state.bossDead ? 'YOU WON!!' : false;
     
     let messageDiv = (
       <div 
       className='messageDiv' 
-      style={(this.state.playerDead || this.state.bossDead) ? {opacity: 1} : {opacity: 0}}><h4>{message}</h4></div>
+      style={(this.state.playerDead || this.state.bossDead) ? {opacity: 1} : {opacity: 0}}>
+      <h4>{deadMessage || winMessage}</h4>
+        <div className='refresh-button' 
+        style={{margin: '0 auto'}} 
+        onClick={this.handleRestart}>
+          <i className="fa fa-2x fa-refresh" aria-hidden="true"></i>
+        </div>
+      </div>
     )
 
     return (
@@ -287,7 +320,7 @@ class Layout extends Component {
             <h4><span className = 'stat-name'>Level</span>: {this.props.hero.level}</h4>          
             <h4><span className = 'stat-name'>Health</span>: {this.props.hero.hp}</h4>
             <h4><span className = 'stat-name'>Weapon</span>: {this.props.hero.weapon.name}</h4>
-            <h4><span className = 'stat-name'>Experience</span>: {this.props.hero.xp} / {nextLevel}</h4>
+            <h4><span className = 'stat-name'>Experience</span>: {xpStatus} </h4>
           </div>
           <div className='key' style={{backgroundColor: 'white'}}>
             <h2 style={{textAlign: 'center'}}>Key</h2>
@@ -312,7 +345,7 @@ class Layout extends Component {
   }
 }
 
-
+//REDUX 
 
 const mapStateToProps = (state) => {
   return { 
@@ -332,7 +365,8 @@ const mapDispatchToProps = (dispatch) => {
     gainXP: (xp) => {dispatch(gainXP(xp))},
     levelUp: (lvl, hp) => {dispatch(levelUp(lvl, hp))},
     newLevel: (num) => {dispatch(newLevel(num))},
-    newPosition: () => {dispatch(newPosition())}
+    newPosition: () => {dispatch(newPosition())},
+    resetHero: () =>{dispatch(resetHero())}
   }
 }
 

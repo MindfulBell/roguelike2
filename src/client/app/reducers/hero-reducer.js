@@ -1,4 +1,4 @@
-import { MOVE_HERO, PICKUP_POTION, PICKUP_WEAPON, DMG_HERO, GAIN_XP, LEVEL_UP, NEW_POSITION } from '../actions/index.js'
+import { MOVE_HERO, PICKUP_POTION, PICKUP_WEAPON, DMG_HERO, GAIN_XP, LEVEL_UP, NEW_POSITION, RESET_HERO } from '../actions/index.js'
 
 const INITIAL_HERO_STATE = {
     level: 1,
@@ -23,6 +23,8 @@ const INITIAL_HERO_STATE = {
             return Object.assign({}, state, {level: action.lvl}, {hp: action.hp})
         case NEW_POSITION:
             return Object.assign({}, state, {position: action.position})
+        case RESET_HERO: 
+            return Object.assign({}, state, INITIAL_HERO_STATE)
      }
      return state;
  } 

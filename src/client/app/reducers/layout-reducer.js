@@ -1,7 +1,5 @@
 import { REMOVE_ITEM, HIT_ENEMY, NEW_LEVEL } from '../actions/index.js';
 
-//NEXT UP: level up effect/celebration, Refactor
-
 function findCellMatch(cell, action){
   
   let cellX = cell.position[0];
@@ -44,7 +42,6 @@ export default function(state = [], action) {
 
         case NEW_LEVEL:
           return action.newBoard;
-
 
         default:
           return state;

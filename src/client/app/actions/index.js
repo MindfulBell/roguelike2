@@ -1,5 +1,5 @@
 import { level1, level2, level3, level4, weapon2, weapon3, weapon4 } from '../reducers/board.js';
-import { randomInclusive } from '../utils/index.js'
+import { randomInclusive } from '../utils/index.js';
 
 function buildBoard(board, currentStage = 1, hp1 = 9, hp2 = 16, weapon = {name: 'Club of Cockiness', att: 5}, enemylvl = 1, lastLevel = false) {
   let cells = [];
@@ -152,7 +152,7 @@ function addBoss(board){
   let x = randomInclusive(0,49);
   let y = randomInclusive(0,29);
   let bossObj = {
-    enemy: {lvl: 5, hp: 55}, 
+    enemy: {lvl: 5, hp: 150}, 
     boss: true
   }
   newBoard = board.map((row)=>{
@@ -170,7 +170,7 @@ function addBoss(board){
   return newBoard;
 }
 
-
+// set boards for each level that get increasingly difficult
 let board1 = buildBoard(level1);
 let board2 = buildBoard(level2, 2, 18, 25, weapon2, 2);
 let board3 = buildBoard(level3, 3, 25, 30, weapon3, 3);
@@ -291,6 +291,13 @@ export function newPosition(){
 		type: NEW_POSITION,
 		position: [5, 20]
 	};
+}
+
+export const RESET_HERO = 'RESET_HERO';
+export function resetHero(){
+  return {
+    type: RESET_HERO
+  };
 }
 
 
