@@ -1,17 +1,6 @@
 import { REMOVE_ITEM, HIT_ENEMY, NEW_LEVEL } from '../actions/index.js';
 
-
-//may need to make objects for each level...i.e. level 1 enemies, weapon, potions etc. and on the next level, just inject it all into buildboard as params
-
-//may have to add a ton of parameters to this as it will need to run again on level changes
-
-
-// add a buildHero function and just make an object here?
-
-//build a function to repeat finding the element in the board otherwise
-//there will be a lot of repeat code
-
-//NEXT UP: Button to toggle darkness, add a key for symbols, add icons?, Add a hero status div, level up effect/celebration, Refactor
+//NEXT UP: level up effect/celebration, Refactor
 
 function findCellMatch(cell, action){
   

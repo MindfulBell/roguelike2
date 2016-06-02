@@ -12,7 +12,8 @@ export default class App extends Component {
   render() {
     return (
       <div>
-      <h1 style={{textAlign: 'center', color: 'white'}}> RogueLike Dungeon Crawler </h1>
+      <h1 className='title'> Roguelike Dungeon Crawler </h1>
+      <h2 className='subtitle'>Built using React + Redux for FreeCodeCamp</h2>
         <Layout/>
       </div>
     );

@@ -16,7 +16,6 @@ class Layout extends Component {
     };
     this.handleKey = this.handleKey.bind(this);
     this.findNeighbors = this.findNeighbors.bind(this);
-    // this.getSingleNeighbor = this.getSingleNeighbor.bind(this);
     this.getMovedTo = this.getMovedTo.bind(this);
     this.handleClick = this.handleClick.bind(this);
   }
@@ -62,28 +61,6 @@ class Layout extends Component {
           return cell.top || cell.left || cell.right || cell.bot;
         })
     }
-
-    // getSingleNeighbor(neighbors, dir){
-    //   for (let i=0; i<neighbors.length; i++) {
-    //     if (neighbors[i].hasOwnProperty(dir)) {
-    //       return neighbors[i];
-    //     }
-    //   }
-    // }
-    
-    // getCell(pos){
-    //   let layout = [];
-    //   let heroCell = {}
-    //   for (let i=0; i<this.props.layout.length; i++) {
-    //     layout.push(...this.props.layout[i])
-    //   }
-    //   layout.forEach((cell)=>{
-    //     if (cell.position[0] === pos[0] && cell.position[1] === pos[1]) {
-    //       heroCell = cell;
-    //     }
-    //   })
-    //   return heroCell;
-    // }
     
     getMovedTo(neighbors, pos){
       for (let i=0; i<neighbors.length; i++) {
@@ -222,7 +199,7 @@ class Layout extends Component {
               // hitpoint boost on level up
               let levelupHP = heroHP + 50
                           
-              //XP Thresholds: 40, 85, 120
+              //XP Thresholds: 35, 85, 120
               if (totalXP >= 35 && totalXP < 85 && heroLvl === 1){this.props.levelUp(2, levelupHP)}
               if (totalXP >= 85 && totalXP < 120 && heroLvl === 2){this.props.levelUp(3, levelupHP)}
               if (totalXP >= 120 && heroLvl === 3){this.props.levelUp(4, levelupHP)}
@@ -242,6 +219,18 @@ class Layout extends Component {
 
   render() {
     // building the map, pulled layout from global state/redux
+    let nextLevel = 0; 
+    switch (this.props.hero.level) {
+      case 1:
+      nextLevel = 35
+      break;
+      case 2:
+      nextLevel = 85
+      break;
+      case 3:
+      nextLevel = 120
+      break;
+    }
     let cells = this.props.layout.map((row, rowNum)=>{
       return row.map((cell,cellNum)=>{
         let heroPos = this.props.hero.position;
@@ -273,7 +262,6 @@ class Layout extends Component {
         else if (cell.stairs) {
           return <Cell key={cellNum+rowNum} stairs={true} />            
         }
-        // room has to be the last one. ALL OF THESE NEED TO BE REFACTORED!!
         else if (!cell.wall) {
           return <Cell key={cellNum+rowNum} room={true} />            
         }        
@@ -285,27 +273,39 @@ class Layout extends Component {
     
     let message = this.state.playerDead ? 'YOU DIED!' : 'YOU WON!';
     
-    let loseDiv = (
+    let messageDiv = (
       <div 
-      className='loseMessage' 
-      style={(this.state.playerDead || this.state.bossDead) ? {opacity: 1} : {opacity: 0}}>{message}</div>
+      className='messageDiv' 
+      style={(this.state.playerDead || this.state.bossDead) ? {opacity: 1} : {opacity: 0}}><h4>{message}</h4></div>
     )
 
     return (
       <div>
-        <div className='player-stats' style={{backgroundColor: 'white'}}>
-          <h3>Level: {this.props.hero.level}</h3>
-          <h3>Position: {this.props.hero.position[0]}, {this.props.hero.position[1]}</h3>
-          <h3>HP: {this.props.hero.hp}</h3>
-          <h3>Weapon: {this.props.hero.weapon.name}</h3>
-          <h3>XP: {this.props.hero.xp}</h3>
+        <div className='stats-and-key'>
+          <div className='player-stats' style={{backgroundColor: 'white'}}>
+            <h2>Hero Stats</h2>
+            <h4><span className = 'stat-name'>Level</span>: {this.props.hero.level}</h4>          
+            <h4><span className = 'stat-name'>Health</span>: {this.props.hero.hp}</h4>
+            <h4><span className = 'stat-name'>Weapon</span>: {this.props.hero.weapon.name}</h4>
+            <h4><span className = 'stat-name'>Experience</span>: {this.props.hero.xp} / {nextLevel}</h4>
+          </div>
+          <div className='key' style={{backgroundColor: 'white'}}>
+            <h2 style={{textAlign: 'center'}}>Key</h2>
+            <div><div className = 'key-cell' style={{backgroundColor: 'green'}}></div> = Potion </div> 
+            <div><div className = 'key-cell' style={{backgroundColor: 'orange'}}></div> = Weapon </div>         
+            <div><div className = 'key-cell' style={{backgroundColor: 'red'}}></div> = Enemy </div>
+            <div><div className = 'key-cell' style={{backgroundColor: 'yellow'}}></div> = Boss </div>
+            <div><div className = 'key-cell' style={{backgroundColor: 'purple'}}></div> = Stairs </div>
+          </div>
         </div>
-        <div className='seeAllButton'>
-          <button onClick={this.handleClick}>Toggle Darkness</button>
+        <div className='see-all'>
+          <div className='see-button' style={{margin: '0 auto'}} onClick={this.handleClick}><i className="fa fa-2x fa-lightbulb-o" aria-hidden="true"></i></div>
         </div>
-        <div className='board'>
-          {loseDiv}
-          {cells}
+        <div className='board-holder'>
+          {messageDiv}
+          <div className='board'>            
+            {cells}
+          </div>
         </div>
       </div>
     );

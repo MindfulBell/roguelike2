@@ -38,7 +38,6 @@ export default class Cell extends Component {
         
         return (
             <div className='cell' style={style}>
-                
             </div>
         )
     }

@@ -1,13 +1,77 @@
+$straightFont: 'Josefin Sans', sans-serif;
+$italicFont: 'Expletus Sans', cursive;
+$heading: 'Freckle Face', cursive;
+
 body {
-    background-color: black;
+    background-color: #383F51;
 }
+.title, .subtitle {
+    text-align: center;
+    color: white;
+    font-family: $heading;
+    text-shadow: 0px 0px 12px black;
+}
+.title {
+    font-size: 4em;
+    margin-bottom: 5px;
+}
+.subtitle {
+    font-family: $straightFont;
+    margin: 0px auto 45px auto;
+}
+
+
+/* STAT AND KEY BOX */
+
+.player-stats, .key {
+    border-radius: 6px;
+    display: inline-block;
+    width: 45%;
+    margin: 0 auto;
+    padding: 15px;
+    text-align: center;
+    font-family: $straightFont; 
+    .stat-name {
+        color: #383F51;
+        font-family: $italicFont;
+        font-style: italic;        
+    }
+    h4 {
+        margin: 8px auto;
+    }
+}
+
+.key {
+    text-align: left;
+    width: 25%;
+    float: right;
+    margin-top: 20px;
+}
+
+.key-cell {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    background-color: red;
+
+}
+
+.stats-and-key {
+    width: 50%;
+    margin: 0 auto;
+    h2 {
+        text-decoration: underline;
+        margin-top: 10px;
+    }
+}
+
+/* BOARD AND CELLS */
 
 .board {
     height: 450px;
     width: 750px;
     background-color: white;
-    margin: 0 auto;
-    z-index: -1;
+    margin: -100px auto 30px auto;
 }
 
 .cell {
@@ -17,10 +81,46 @@ body {
     display: inline-block;
 }
 
-.loseMessage {
-    height: 200px;
+/* BUTTON AND WIN/LOSS MESSAGE */
+
+
+.see-all {
+    margin: 15px auto;
+    width: 5%;
+    transition: all .5s ease;
+    .see-button {
+        font-family: $straightFont;   
+        width: 100%;
+        background-color: white;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all .5s ease;
+        border: 1px solid black;
+        &:hover {
+            color: #F2DF68;
+            background-color: black;
+            border: 1px solid #F2DF68;
+        }
+    }
+}
+
+.messageDiv {
+    background-color: #383F51;
+    color: white;
+    border-radius: 6px;
+    border: 1px solid white;
+    transition: all 1s ease;
+    height: 100px;
     width: 200px;
+    position: relative;
+    left: 0;
+    top: 180px;
     margin: 0 auto;
-    font-size: 4em;
+    z-index: 10;
     text-align: center;
+    h4 {
+        font-family: $straightFont;
+        padding-top: 10px;
+    }
 }
